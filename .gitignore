@@ -1,0 +1,71 @@
+# ==============================================================================
+# Git Ignore - Gestion-d-Hopitale (Système d'Information Hospitalier)
+# ==============================================================================
+
+# Fichiers d'environnement & Données sensibles (RGPD / Sécurité)
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+secrets/
+
+# Fichiers compilés & Artefacts Java
+*.class
+*.jar
+*.war
+*.ear
+bin/
+build/
+target/
+out/
+dist/
+
+# Logs & Traces d'exécution
+*.log
+logs/
+hs_err_pid*
+replay_pid*
+
+# Données persistantes locales de base de données
+mysql_data/
+db_data/
+*.sqlite
+*.db
+
+# Outils de développement & IDEs
+# JetBrains IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Eclipse
+.settings/
+.project
+.classpath
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# Fichiers OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Wrapper local d'automatisation
+powershell.cmd

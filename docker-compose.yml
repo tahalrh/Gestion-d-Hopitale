@@ -1,0 +1,72 @@
+version: '3.8'
+
+# ==============================================================================
+# GESTION-D-HOPITALE - Orchestration Multi-Conteneurs (Application + MySQL)
+# ==============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. Base de Données Relationnelle (MySQL 8.0)
+  # ----------------------------------------------------------------------------
+  db:
+    image: mysql:8.0
+    container_name: hopital_mysql_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-hopital_db}
+      MYSQL_USER: ${DB_USER:-hopital_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-HopitalSecurite2026!}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-RootAdminHopital2026!}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - hopital_db_data:/var/lib/mysql
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-RootAdminHopital2026!}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - hopital_network
+
+  # ----------------------------------------------------------------------------
+  # 2. Application Backend Java (SIH)
+  # ----------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hopital_backend_app
+    restart: on-failure
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-hopital_db}
+      DB_USER: ${DB_USER:-hopital_user}
+      DB_PASSWORD: ${DB_PASSWORD:-HopitalSecurite2026!}
+      APP_ENV: ${APP_ENV:-production}
+      APP_PORT: ${APP_PORT:-8080}
+      DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY:-dGhpc0lzQVZlcnlTZWN1cmVLZXlGb3JIZWFsdGgyMDI2IQ==}
+      AUDIT_LOG_ENABLED: ${AUDIT_LOG_ENABLED:-true}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    networks:
+      - hopital_network
+
+# ------------------------------------------------------------------------------
+# Volumes & Réseaux Isolés
+# ------------------------------------------------------------------------------
+volumes:
+  hopital_db_data:
+    name: hopital_db_data
+    driver: local
+
+networks:
+  hopital_network:
+    name: hopital_network
+    driver: bridge
